@@ -1,8 +1,153 @@
 import Head from 'next/head'
-import Image from 'next/image'
+import {useState} from 'react'
+import {create} from 'ipfs-http-client'
+import { createRaribleSdk } from "@rarible/sdk"
+import { toCollectionId, toUnionAddress } from "@rarible/types"
+// import { MintType } from "@rarible/sdk/build/types/nft/mint/domain"
+// import IPFS from 'ipfs-http-client'
 import styles from '../styles/Home.module.css'
+// import axios from 'axios'
+const client = create('http://127.0.0.1:5001/api/v0')
+
+
+
+
+// ====================================================================
+
 
 export default function Home() {
+  const [account, setAccount] = useState(null)
+  const [file, setFile] = useState(null)
+  const [createObjectURL, setCreateObjectURL] = useState('');
+  const [imgRes, setImgRes] = useState({});
+
+
+  // const [metadata, setMetadata] = useState({
+  //     "name": '',
+  //     "description": '',
+  //     "image":'',
+  //     "external_url":``,
+  //     "attributes":[],
+  //     })
+
+
+
+
+
+
+const fileSelectHandler = (e) => {
+  const i = e.target.files[0];
+  setFile(i);
+  console.log(i)
+ 
+  console.log(URL.createObjectURL(i))
+  setCreateObjectURL(URL.createObjectURL(i));
+  console.log(URL.createObjectURL(i));
+  
+
+} 
+console.log(file)
+console.log(createObjectURL)
+ const [formValue, setFormValue] = useState({
+  name:"",
+  desc: "",
+ });
+  const handleChange = (e) => {
+    const {name, value} = e.target;
+    setFormValue((prevState) =>{
+      return {
+        ...prevState,
+        [name] : value,
+      };
+    });
+    console.log(formValue);
+     };
+
+
+    //  const uploadmeta =  () => {
+    //   setMetadata({
+    //     "name": formValue.name,
+    //     "description": formValue.desc,
+    //     "image":createObjectURL,
+    //     "external_url":`https://app.rarible.com/${account}:123913`,
+    //     "attributes":[],
+    //     })
+    //     console.log(metadata)
+    // }
+
+
+
+  const updateForm = async (e) => {
+    e.preventDefault();
+
+    try {
+//       const ipfs = await IPFS.create('https://ipfs.infura.io:5001/api/v0')
+
+//   const  cid  = await ipfs.add(file)
+//  console.log(cid)
+  const  added = await client.add(file)
+  console.log(added)
+  const url = `https://ipfs.infura.io/ipfs/${added.path}`
+  console.log(url);
+
+
+  const metadata = JSON.stringify({
+    "name": formValue.name,
+    "description": formValue.desc,
+    "image":url,
+    "external_url":`https://app.rarible.com/${account}:123913`,
+    "attributes":[],
+    })
+    console.log(metadata)
+
+ const metaObj = await client.add(metadata)
+ console.log(metaObj);
+ const metaUrl = `https://ipfs.infura.io/ipfs/${metaObj.path}`
+  console.log(metaUrl)
+
+
+// =================================================
+
+// const mintAction = await sdk.nft.mint({
+//   collectionId: toCollectionId(ethereum:account)
+// })
+// console.log(mintAction);
+
+    }catch (error) {
+  console.log('Error uploading', error)
+}
+
+// ============================================
+
+
+
+
+// try {
+// //  await uploadmeta().then(console.log(client.add(metadata)))
+
+// //     console.log(metadata);
+   
+//     // const metaObj = await client.add(metadata);
+//     // console.log(metaObj);
+// } catch (error) {
+//   console.log(error)
+// }
+}
+
+
+
+
+
+const loadMetamask = async () => {
+  // You need to await for user response on the metamask popup dialog
+  const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+  if(accounts){
+    setAccount(accounts[0])
+     console.log(accounts[0]);
+  }
+}
+
+
   return (
     <div className={styles.container}>
       <Head>
@@ -11,59 +156,30 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+  <form   method="post">
+  <label>Name:</label>
+  <input type="text" id="first" name="name" onChange={handleChange} />
+  <label>Description:</label>
+  <textarea id="last" name="desc" onChange={handleChange}/>
+  <input type="file"  name='file' onChange={fileSelectHandler}
+/>
+  <button type="submit" onClick={updateForm}>Submit</button>
+  
+</form>
+<div>
+  <img src={createObjectURL} alt="img" width={200} height={200} />
+  </div>
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
+  <div>
+     
+     <h2>{account}</h2>
+         <button
+           onClick={()=>loadMetamask()}
+         >Connect to Metamask</button>
+ 
+     </div>
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
+      
     </div>
   )
 }
