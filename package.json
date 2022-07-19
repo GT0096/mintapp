@@ -13,6 +13,7 @@
     "@pinata/sdk": "^1.1.26",
     "@rarible/sdk": "^0.9.11-beta.13",
     "@rarible/types": "^0.9.3",
+    "@rarible/web3-ethereum": "^0.12.74",
     "axios": "^0.27.2",
     "form-data": "^4.0.0",
     "fs": "^0.0.1-security",
@@ -20,7 +21,8 @@
     "ipfs-http-client": "^57.0.3",
     "next": "12.2.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "web3": "^1.7.4"
   },
   "devDependencies": {
     "eslint": "8.19.0",
