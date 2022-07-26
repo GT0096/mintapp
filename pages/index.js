@@ -51,7 +51,7 @@ const ethWallet = new EthereumWallet(web3Ethereum)
 // const env = "dev" // "e2e" | "ropsten" | "rinkeby" | "mainnet"
 const raribleSdk = createRaribleSdk(ethWallet, "dev")
 setSdk(raribleSdk);
-console.log(raribleSdk.apis.collection.getCollectionById)
+console.log(raribleSdk)
 console.log(web3.eth.getAccounts());
 }else {
   console.log('Please install MetaMask!')
@@ -75,8 +75,8 @@ useEffect(()=> {
 // ============================================================
 // create collection
 const [imgPath, setImgPath] = useState({});
-    async function CreateCollection() {
-
+    async function CreateCollection(e) {
+e.preventDefault()
     const ethereumRequest = {
       blockchain:"ETHEREUM",
       asset: {
@@ -91,7 +91,7 @@ const [imgPath, setImgPath] = useState({});
       },
     }
     try {
-      const result = await sdk.nft.instances.ETHEREUM.createCollection(ethereumRequest)
+      const result = await sdk.nft.createCollection(ethereumRequest)
       console.log(result)
       await result.tx.wait()
       // console.log(result.tx.blockchain, result.tx.transaction.hash)
@@ -108,7 +108,7 @@ const [imgPath, setImgPath] = useState({});
 // ==========================================================
 // minting nft
 async  function mintNft(e) {
-
+e.preventDefault()
   const collectionAddress = contractAddress.split(':')[1];
   console.log(collectionAddress)
 
@@ -118,9 +118,16 @@ async  function mintNft(e) {
     })
     const mintResult = await mintAction.submit({
   uri:metaUrl,
-  royalties: [],
-lazyMint: true,
-supply: 1,
+  royalties:[{
+    account: toUnionAddress(`ETHEREUM:${account}`),
+    value: 1000,
+}],
+creators:[{
+  account: toUnionAddress(`ETHEREUM:${account}`),
+  value: 1000,
+}],
+  lazyMint: true,
+  supply: 1,
 })
 console.log(mintResult)
 if (mintResult.type === MintType.OFF_CHAIN) {
@@ -147,24 +154,14 @@ return console.log(mintResult.itemId)
 }
 
 
-
-
-
-
-
   // ==================================================
   //file Handling part
   // const [account, setAccount] = useState(null)
   const [file, setFile] = useState(null)
   const [createObjectURL, setCreateObjectURL] = useState('');
   
-
-
-
-
-
-
 const fileSelectHandler = (e) => {
+  e.preventDefault()
   const i = e.target.files[0];
   setFile(i);
   console.log(i)
@@ -215,6 +212,8 @@ console.log(createObjectURL)
     })
     console.log(metadata)
 
+
+    // When used sdk.nft.preprocessMeta getting error that says "TypeError: this.instances[request.blockchain] is undefined"
  const metaObj = await client.add(metadata)
  console.log(metaObj);
  const metaUrl = `https://myraahw3s.io/ipfs/${metaObj.path}`
